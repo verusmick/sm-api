@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var clientHandlers = require('../models/clients.model.js');
+var employerHandlers = require('../models/employers.model.js');
 
 /* GET users listing. */
-router.get('/', clientHandlers.getClients);
+router.get('/', employerHandlers.getEmployers);
 
 module.exports = router;

@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var clientHandlers = require('../models/clients.model.js');
+var productHandlers = require('../models/products.model');
 
 /* GET users listing. */
-router.get('/', clientHandlers.getClients);
+router.get('/', productHandlers.getProducts);
 
 module.exports = router;
