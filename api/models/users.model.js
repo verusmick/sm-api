@@ -1,10 +1,8 @@
-const mysql = require('mysql')
-const connection = require('./connection')
-
-const adm_conn = mysql.createConnection(connection.admin());
+const sanaMedicDB = require('../Database/sanaMedicDB')
+const sicivDB = require('../Database/sicivDB')
 
 exports.getUsers= (req, res) => {
-  adm_conn.query('SELECT * FROM us_usuarios', function (err, results) {
+  sicivDB.query('SELECT * FROM us_usuarios', function (err, results) {
     if (err) throw err
     return res.json(results)
   })

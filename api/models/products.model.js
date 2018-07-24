@@ -1,10 +1,7 @@
-const mysql = require('mysql')
-const connection = require('./connection')
-
-const adm_conn = mysql.createConnection(connection.admin());
+const sicivDB = require('../Database/sicivDB')
 
 exports.getProducts = (req, res) => {
-  adm_conn.query("SELECT nota_de_ingresos_productos.no_de_lote," +
+  sicivDB.query("SELECT nota_de_ingresos_productos.no_de_lote," +
     "nota_de_ingresos_productos.registro_sanitario," +
     "nota_de_ingresos_productos.fecha_de_vencimiento," +
     "nota_de_ingresos_productos.unidades_ingresadas," +
