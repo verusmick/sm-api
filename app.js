@@ -9,9 +9,13 @@ var usersRouter = require('./api/routes/users');
 var clientsRouter = require('./api/routes/clients');
 var employersRouter = require('./api/routes/employers');
 var productsRouter = require('./api/routes/products');
+var jwt = require('jsonwebtoken');
 var cors = require('cors')
 
+
 var app = express();
+
+app.set('secretKey', 'sanamedicApi'); // jwt secret token
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,10 +28,24 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
+// Token interceptor
+function validateUser(req, res, next) {
+  jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), function (err, decoded) {
+    if (err) {
+      res.json({status: "error", message: err.message, data: null});
+    } else {
+      // add user id to request
+      req.body.userId = decoded.id;
+      next();
+    }
+  });
+}
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/clients', clientsRouter);
-app.use('/employers', employersRouter);
+app.use('/employers', validateUser, employersRouter);
 app.use('/products', productsRouter);
 
 // catch 404 and forward to error handler
