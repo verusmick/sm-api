@@ -3,6 +3,7 @@ var router = express.Router();
 var userHandlers = require('../models/users.model');
 
 /* GET users listing. */
+router.post('/', userHandlers.create);
 router.get('/', userHandlers.getUsers);
 
 // /* GET users listing. */
