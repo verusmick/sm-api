@@ -4,6 +4,7 @@ var userHandlers = require('../models/users.model');
 
 /* GET users listing. */
 router.post('/', userHandlers.create);
+router.post('/authenticate', userHandlers.authenticate);
 router.get('/', userHandlers.getUsers);
 
 // /* GET users listing. */
