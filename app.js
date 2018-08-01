@@ -44,9 +44,9 @@ function validateUser(req, res, next) {
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/clients', clientsRouter);
+app.use('/clients',validateUser, clientsRouter);
 app.use('/employers', validateUser, employersRouter);
-app.use('/products', productsRouter);
+app.use('/products',validateUser, productsRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

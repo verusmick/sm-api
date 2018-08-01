@@ -1,17 +1,26 @@
-var express = require('express');
-var router = express.Router();
-var userHandlers = require('../models/users.model');
+var express = require('express')
+var router = express.Router()
+var userHandlers = require('../models/users.model')
+var jwt = require('jsonwebtoken')
 
-/* GET users listing. */
-router.post('/', userHandlers.create);
-router.post('/authenticate', userHandlers.authenticate);
-router.get('/', userHandlers.getUsers);
+router.post('/authenticate', userHandlers.authenticate)
 
-// /* GET users listing. */
-// router.get('/', function(req, res, next) {
-//   res.send('respond with a resource');
-// });
-//
-// module.exports = router;
+router.get('/', validateUser, userHandlers.getAll)
+router.post('/', validateUser, userHandlers.create)
+router.get('/:userId', validateUser, userHandlers.getById)
+// router.put('/:userId', validateUser, userHandlers.updateById) //todo: implement later
+router.delete('/:userId', validateUser, userHandlers.deleteById)
 
+// Token interceptor
+function validateUser(req, res, next) {
+  jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), function (err, decoded) {
+    if (err) {
+      res.json({status: "error", message: err.message, data: null});
+    } else {
+      // add user id to request
+      req.body.userId = decoded.id;
+      next();
+    }
+  });
+}
 module.exports = router;
