@@ -12,8 +12,19 @@ exports.authenticate = (req, res, next) => {
     } else {
       let userInfo = results[0]
       if (bcrypt.compareSync(req.body.password, userInfo.password)) {
-        let token = jwt.sign({id: userInfo.id}, req.app.get('secretKey'), {expiresIn: '12h'});
-        res.json({status: "success", message: "user found!!!", data: {user: userInfo, token: token}});
+        let token = jwt.sign({id: userInfo.id}, req.app.get('secretKey'), {expiresIn: '2h'});
+
+        var userInfoParsed= {
+          firstName:userInfo.first_name,
+          secondName:userInfo.second_name,
+          firstSurname:userInfo.first_surname,
+          secondSurname:userInfo.second_surname,
+          cellphone:userInfo.cellphone,
+          password:userInfo.password,
+          ci:userInfo.ci,
+          idRole:userInfo.id_role
+        };
+        res.json({status: "success", message: "user found!!!", data: {user: userInfoParsed, token: token}});
       } else {
         res.json({status: "error", message: "Invalid email/password!!!", data: null});
       }
