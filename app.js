@@ -8,7 +8,7 @@ var indexRouter = require('./api/routes/index');
 var usersRouter = require('./api/routes/users');
 var clientsRouter = require('./api/routes/clients');
 var employersRouter = require('./api/routes/employers');
-var productsRouter = require('./api/routes/products');
+var inventoryRouter = require('./api/routes/inventory');
 var jwt = require('jsonwebtoken');
 var cors = require('cors')
 
@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 function validateUser(req, res, next) {
   jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), function (err, decoded) {
     if (err) {
-      res.json({status: "error", message: err.message, data: null});
+      res.status(403).json({status: "error", message: err.message, data: null});
     } else {
       // add user id to request
       req.body.userId = decoded.id;
@@ -46,7 +46,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/clients',validateUser, clientsRouter);
 app.use('/employers', validateUser, employersRouter);
-app.use('/products',validateUser, productsRouter);
+app.use('/inventory',validateUser, inventoryRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
