@@ -40,16 +40,16 @@ exports.getAll = (req, res, next) => {
     } else {
       for (let user of results) {
         usersList.push({
-          id: user.id,
           firstName: user.first_name,
+          secondName: user.second_name || '',
           firstSurname: user.first_surname,
-          secondSurname: user.second_surname,
+          secondSurname: user.second_surname || '',
           cellphone: user.cellphone,
           password: user.password,
           ci: user.ci
         });
       }
-      res.json({status: "success", message: "Users list found!!!", data: {movies: usersList}});
+      res.json({status: "success", message: "Users list found!!!", data: {users: usersList}});
     }
   })
 }
@@ -113,7 +113,7 @@ exports.updateById = (req, res, next) => {
 }
 
 exports.deleteById = (req, res, next) => {
-  let query = `DELETE FROM users WHERE id = ${req.params.userId}`;
+  let query = `DELETE FROM users WHERE ci = ${req.params.userId}`;
   sanaMedicDB.query(query, function (err, results) {
     if(err)
       next(err);
