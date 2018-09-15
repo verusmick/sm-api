@@ -58,6 +58,7 @@ exports.create = (req, res, next) => {
   let user = req.body;
   let query = `INSERT INTO users(
   first_name,
+  second_name,
   first_surname,
   ci,
   second_surname,
@@ -66,6 +67,7 @@ exports.create = (req, res, next) => {
   ) 
   VALUES(
   '${user.firstName}',
+  '${user.secondName}',
   '${user.firstSurname}',
   '${user.ci}',
   '${user.secondSurname}',
