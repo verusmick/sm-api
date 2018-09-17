@@ -44,13 +44,14 @@ exports.sellersTrack = (req, res, next) => {
 
 let i = 1;
 function sseDemo(req, res) {
-  let messageId = 0;
+  let messageId = 7029468;
   const intervalId = setInterval(() => {
     res.write(`id: ${messageId}\n`);
     res.write(`data: {"latitude":${coordinates[i].latitude},"longitude":${coordinates[i].longitude}} \n\n`);
     i++;
     messageId += 1;
-  }, Math.random() * (3000 - 500) + 500);
+  // }, Math.random() * (3000 - 500) + 500);
+  }, 3500);
   req.on('close', () => {
     clearInterval(intervalId);
   });
