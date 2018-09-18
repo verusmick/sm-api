@@ -1,6 +1,6 @@
 const sicivDB = require('../Database/sicivDB')
 
-exports.getProducts = (req, res) => {
+exports.getInventory = (req, res) => {
   sicivDB.query("SELECT nota_de_ingresos_productos.no_de_lote," +
     "nota_de_ingresos_productos.registro_sanitario," +
     "nota_de_ingresos_productos.fecha_de_vencimiento," +
