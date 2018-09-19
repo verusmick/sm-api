@@ -12,7 +12,7 @@ exports.postSellersTrack = function (req, res) {
   res.json({status: "success", message: "coordinate added successfully!!!", data: null});
 }
 
-exports.sellersTrackEvents = (req, res, next) => {*
+exports.sellersTrackEvents = (req, res, next) => {
   // SSE Setup
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
