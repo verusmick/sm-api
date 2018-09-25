@@ -1,7 +1,7 @@
-// const sanaMedicDB = require('../Database/sanaMedicDB')
 const express = require('express');
 const app = express();
 const sanaMedicDB = require('../Database/sanaMedicDB')
+const moment = require('moment');
 
 exports.postSellersTrack = function (req, res, next) {
   let coordinate = req.body[0];
