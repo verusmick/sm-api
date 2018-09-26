@@ -5,21 +5,12 @@ const moment = require('moment');
 
 exports.postSellersTrack = function (req, res, next) {
   let coordinate = req.body[0];
-// console.log('coordinate')
-// console.log(req)
-
   app.emit('coordinate', {
     latitude: coordinate.latitude,
     longitude: coordinate.longitude,
-    timestamp: new Date()
+    timestamp: moment().format('YYYY-MM-DD HH:mm:ss')
   });
-
-  let ts= parseInt(new Date());
-  console.log(new Date())
-
-  let query = `INSERT INTO coordinates (id_user, latitude, longitude, timestamp) VALUES ('7029468LP','${coordinate.latitude}','${coordinate.longitude}','${new Date(new Date()).getTime()}')`;
-  console.log('query')
-  console.log(query)
+  let query = `INSERT INTO coordinates (id_user, latitude, longitude, timestamp) VALUES ('7029468LP','${coordinate.latitude}','${coordinate.longitude}','${moment().format('YYYY-MM-DD HH:mm:ss')}')`;
   sanaMedicDB.query(query, (err, results) => {
     if (err) throw next(err);
     res.json({status: "success", message: "coordinate added successfully!!!", data: null});
