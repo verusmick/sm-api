@@ -17,7 +17,7 @@ exports.authenticate = (req, res, next) => {
       if (bcrypt.compareSync(req.body.password, userInfo.password)) {
         let role = {};
         getRoleById(userInfo.id_role).then(roleResp => {
-           role = roleResp;
+          role = roleResp;
           return getResourcesPerRole(userInfo.id_role);
         }).then(resources => {
           let token = jwt.sign({id: userInfo.id}, req.app.get('secretKey'), {expiresIn: '2h'});
@@ -74,23 +74,20 @@ function getResourcesPerRole(idRole) {
 }
 
 exports.getAll = (req, res, next) => {
-  sanaMedicDB.query('SELECT * FROM users', function (err, results) {
-    let usersList = []
+  let query = 'SELECT users.first_name AS firstName , ' +
+    'users.first_surname AS firstSurname,' +
+    'users.second_surname AS secondSurname, ' +
+    'users.cellphone,' +
+    'users.ci, ' +
+    'users.second_name AS secondName, ' +
+    'users.borned_in AS bornedIn,  ' +
+    'roles.name AS role ' +
+    'FROM users INNER JOIN roles ON users.id_role = roles.id_role';
+  sanaMedicDB.query(query, function (err, results) {
     if (err) {
       next(err)
     } else {
-      for (let user of results) {
-        usersList.push({
-          firstName: user.first_name,
-          secondName: user.second_name || '',
-          firstSurname: user.first_surname,
-          secondSurname: user.second_surname || '',
-          cellphone: user.cellphone,
-          password: user.password,
-          ci: user.ci
-        });
-      }
-      res.json({status: "success", message: "Users list found!!!", data: {users: usersList}});
+      res.json({status: "success", message: "Users list found!!!", data: {users: results}});
     }
   })
 }
