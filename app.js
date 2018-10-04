@@ -7,6 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./api/routes/index');
 var usersRouter = require('./api/routes/users');
 var clientsRouter = require('./api/routes/clients');
+var rolesRouter = require('./api/routes/roles');
 var employersRouter = require('./api/routes/employers');
 var inventoryRouter = require('./api/routes/inventory');
 var gpsTrackingRouter = require('./api/routes/gpsTracking');
@@ -47,6 +48,7 @@ function validateUser(req, res, next) {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/clients',validateUser, clientsRouter);
+app.use('/roles',validateUser, rolesRouter);
 app.use('/employers', validateUser, employersRouter);
 app.use('/inventory',validateUser, inventoryRouter);
 app.use('/gpsTracking', gpsTrackingRouter);
