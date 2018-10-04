@@ -7,7 +7,6 @@ exports.authenticate = (req, res, next) => {
   // let query = `SELECT * FROM users WHERE ci LIKE  "${req.body.ci}__"`;
   let query = `SELECT * FROM users WHERE ci = ${req.body.ci}`
   sanaMedicDB.query(query, (err, results) => {
-    console.log(results)
     if (err) {
       next(err);
     } else if (results.length === 0) {
@@ -99,17 +98,21 @@ exports.create = (req, res, next) => {
   second_name,
   first_surname,
   ci,
+  borned_in,
   second_surname,
   cellphone,
-  password
+  id_role,
+  password  
   ) 
   VALUES(
   '${user.firstName}',
   '${user.secondName}',
   '${user.firstSurname}',
   '${user.ci}',
+  '${user.bornedIn}',  
   '${user.secondSurname}',
   '${user.cellphone}',
+  '${user.idRole}',
   '${bcrypt.hashSync(user.password, 10)}')`;
   sanaMedicDB.query(query, (err, results) => {
     if (err) throw next(err);
