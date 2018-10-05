@@ -1,7 +1,7 @@
 const sanaMedicDB = require('../Database/sanaMedicDB')
 
 exports.getAll = (req, res, next) => {
-  let query = `SELECT * FROM roles`;
+  let query = `SELECT roles.id_role AS idRole, roles.name, roles.code_role AS codeRole FROM roles`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
       next(err)

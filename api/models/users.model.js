@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 exports.authenticate = (req, res, next) => {
   // let query = `SELECT * FROM users WHERE ci LIKE  "${req.body.ci}__"`;
-  let query = `SELECT * FROM users WHERE ci = ${req.body.ci}`
+  let query = `SELECT * FROM users WHERE ci = '${req.body.ci}'`
   sanaMedicDB.query(query, (err, results) => {
     if (err) {
       next(err);
@@ -156,7 +156,7 @@ exports.updateById = (req, res, next) => {
 }
 
 exports.deleteById = (req, res, next) => {
-  let query = `DELETE FROM users WHERE ci = ${req.params.userId}`;
+  let query = `DELETE FROM users WHERE ci = "${req.params.userId}"`;
   sanaMedicDB.query(query, function (err, results) {
     if (err)
       next(err);
