@@ -15,9 +15,9 @@ exports.authenticate = (req, res, next) => {
       let userInfo = results[0];
       if (bcrypt.compareSync(req.body.password, userInfo.password)) {
         let role = {};
-        getRoleById(userInfo.id_role).then(roleResp => {
+        getRoleById(userInfo.role_id).then(roleResp => {
           role = roleResp;
-          return getResourcesPerRole(userInfo.id_role);
+          return getResourcesPerRole(userInfo.role_id);
         }).then(resources => {
           let token = jwt.sign({id: userInfo.id}, req.app.get('secretKey'), {expiresIn: '2h'});
           let userInfoParsed = {
@@ -43,7 +43,7 @@ exports.authenticate = (req, res, next) => {
 
 function getRoleById(idRole) {
   return new Promise((resolve, reject) => {
-    let roleQuery = `SELECT * FROM roles WHERE id_role = ${idRole}`
+    let roleQuery = `SELECT * FROM roles WHERE role_id = ${idRole}`
     sanaMedicDB.query(roleQuery, (err, results) => {
       if (err) {
         reject(err)
@@ -57,7 +57,7 @@ function getRoleById(idRole) {
 function getResourcesPerRole(idRole) {
   return new Promise((resolve, reject) => {
     let resourcesQuery = `SELECT resources.code FROM role_resource 
-    INNER JOIN resources ON role_resource.id_resource = resources.id_resource  WHERE id_role = ${idRole}`;
+    INNER JOIN resources ON role_resource.resource_id = resources.resource_id  WHERE role_id = ${idRole}`;
     sanaMedicDB.query(resourcesQuery, (err, results) => {
       if (err) {
         reject(err)
@@ -80,8 +80,10 @@ exports.getAll = (req, res, next) => {
     'users.ci, ' +
     'users.second_name AS secondName, ' +
     'users.borned_in AS bornedIn,  ' +
-    'roles.name AS role ' +
-    'FROM users INNER JOIN roles ON users.id_role = roles.id_role';
+    'roles.name AS role, ' +
+    'roles.role_code AS roleCode ' +
+    'FROM users ' +
+    'INNER JOIN roles ON users.role_id = roles.role_id';
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
       next(err)
@@ -101,7 +103,7 @@ exports.create = (req, res, next) => {
   borned_in,
   second_surname,
   cellphone,
-  id_role,
+  role_id,
   password  
   ) 
   VALUES(
@@ -121,7 +123,7 @@ exports.create = (req, res, next) => {
 };
 
 exports.getById = (req, res, next) => {
-  let query = `SELECT * FROM users WHERE id = ${req.params.userId}`
+  let query = `SELECT * FROM users WHERE ci = "${req.params.userId}"`
   sanaMedicDB.query(query, function (err, response) {
     if (err) {
       next(err)

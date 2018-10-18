@@ -10,7 +10,7 @@ exports.postSellersTrack = function (req, res, next) {
     longitude: coordinate.longitude,
     timestamp: moment().format('YYYY-MM-DD HH:mm:ss')
   });
-  let query = `INSERT INTO coordinates (id_user, latitude, longitude, timestamp) VALUES ('7029468LP','${coordinate.latitude}','${coordinate.longitude}','${moment().format('YYYY-MM-DD HH:mm:ss')}')`;
+  let query = `INSERT INTO coordinates (user_id, latitude, longitude, timestamp) VALUES ('7029468LP','${coordinate.latitude}','${coordinate.longitude}','${moment().format('YYYY-MM-DD HH:mm:ss')}')`;
   sanaMedicDB.query(query, (err, results) => {
     if (err) throw next(err);
     res.json({status: "success", message: "coordinate added successfully!!!", data: null});
