@@ -41,9 +41,9 @@ exports.authenticate = (req, res, next) => {
   })
 };
 
-function getRoleById(idRole) {
+function getRoleById(roleId) {
   return new Promise((resolve, reject) => {
-    let roleQuery = `SELECT * FROM roles WHERE role_id = ${idRole}`
+    let roleQuery = `SELECT * FROM roles WHERE role_id = ${roleId}`
     sanaMedicDB.query(roleQuery, (err, results) => {
       if (err) {
         reject(err)
@@ -54,10 +54,10 @@ function getRoleById(idRole) {
   })
 }
 
-function getResourcesPerRole(idRole) {
+function getResourcesPerRole(roleId) {
   return new Promise((resolve, reject) => {
     let resourcesQuery = `SELECT resources.code FROM role_resource 
-    INNER JOIN resources ON role_resource.resource_id = resources.resource_id  WHERE role_id = ${idRole}`;
+    INNER JOIN resources ON role_resource.resource_id = resources.resource_id  WHERE role_id = ${roleId}`;
     sanaMedicDB.query(resourcesQuery, (err, results) => {
       if (err) {
         reject(err)
@@ -114,7 +114,7 @@ exports.create = (req, res, next) => {
   '${user.bornedIn}',  
   '${user.secondSurname}',
   '${user.cellphone}',
-  '${user.idRole}',
+  '${user.roleId}',
   '${bcrypt.hashSync(user.password, 10)}')`;
   sanaMedicDB.query(query, (err, results) => {
     if (err) throw next(err);
