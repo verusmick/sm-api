@@ -73,6 +73,7 @@ function getResourcesPerRole(roleId) {
 }
 
 exports.getAll = (req, res, next) => {
+  let where = req.query.roleFilter ? ` WHERE roles.role_code = "${req.query.roleFilter}"` : '';
   let query = 'SELECT users.first_name AS firstName , ' +
     'users.first_surname AS firstSurname,' +
     'users.second_surname AS secondSurname, ' +
@@ -83,7 +84,7 @@ exports.getAll = (req, res, next) => {
     'roles.name AS role, ' +
     'roles.role_code AS roleCode ' +
     'FROM users ' +
-    'INNER JOIN roles ON users.role_id = roles.role_id';
+    'INNER JOIN roles ON users.role_id = roles.role_id' + where;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
       next(err)
