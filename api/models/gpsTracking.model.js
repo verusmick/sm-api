@@ -49,6 +49,24 @@ exports.setTrackStatus = (req, res, next) => {
   VALUES (${statusTrackId},'${trackStatus.userId}', '${moment().format('YYYY-MM-DD HH:mm:ss')}')`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) throw next(err);
-    return res.json(results)
+    return res.json({
+      status: "success",
+      message: "TrackStatus added successfully!!!",
+      data: null
+    })
+  })
+}
+
+exports.gpsStatus = (req, res, next) => {
+  let userId = req.params.userId;
+  let query = `SELECT * FROM track_detail WHERE user_id = '${userId}' ORDER BY TIMESTAMP DESC LIMIT 1`;
+  sanaMedicDB.query(query, function (err, results) {
+    if (err) throw next(err);
+    let parseObj = {
+      gpsStatus: results[0].status_track_id === 1 ? 'on' : 'off',
+      userId: results[0].user_id,
+      timestamp: results[0].timestamp
+    };
+    return res.json(parseObj)
   })
 }
