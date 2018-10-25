@@ -5,5 +5,6 @@ var gpsTrackingHandlers = require('../models/gpsTracking.model');
 /* GET users listing. */
 router.get('/sellers', gpsTrackingHandlers.sellersTrackEvents);
 router.post('/sellers', gpsTrackingHandlers.postSellersTrack);
+router.put('/trackStatus/:value', gpsTrackingHandlers.setTrackStatus);
 
 module.exports = router;
