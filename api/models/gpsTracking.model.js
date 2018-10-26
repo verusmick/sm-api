@@ -62,8 +62,11 @@ exports.gpsStatus = (req, res, next) => {
   let query = `SELECT * FROM track_detail WHERE user_id = '${userId}' ORDER BY TIMESTAMP DESC LIMIT 1`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) throw next(err);
+    if (results.length === 0) {
+      return res.json({})
+    }
     let parseObj = {
-      gpsStatus: results[0].status_track_id === 1 ? 'on' : 'off',
+      status: results[0].status_track_id === 1 ? 'on' : 'off',
       userId: results[0].user_id,
       timestamp: results[0].timestamp
     };
