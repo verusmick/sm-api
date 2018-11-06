@@ -19,7 +19,7 @@ exports.authenticate = (req, res, next) => {
           role = roleResp;
           return getResourcesPerRole(userInfo.role_id);
         }).then(resources => {
-          let token = jwt.sign({id: userInfo.id}, req.app.get('secretKey'), {expiresIn: '2h'});
+          let token = jwt.sign({id: userInfo.id}, req.app.get('secretKey'), {expiresIn: '8h'});
           let userInfoParsed = {
             firstName: userInfo.first_name,
             secondName: userInfo.second_name,
