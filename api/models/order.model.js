@@ -7,15 +7,50 @@ var _ = require('lodash');
 const moment = require('moment');
 
 exports.getAll = (req, res, next) => {
-  // let query = `SELECT roles.role_id AS roleId, roles.name, roles.role_code AS codeRole FROM roles`;
-  res.json({status: "success", message: "order list found!!!", data: {}});
-  // sanaMedicDB.query(query, function (err, results) {
-  //   if (err) {
-  //     next(err)
-  //   } else {
-  //     res.json({status: "success", message: "Roles list found!!!", data: {}});
-  //   }
-  // })
+  // let where = req.query.roleFilter ? ` WHERE roles.role_code = "${req.query.roleFilter}"` : '';
+  let query = `SELECT 
+  orders.order_id AS orderId, 
+  orders.client_cache_id AS clientId, 
+  orders.user_id AS userId,
+  orders.order_date AS orderDate,
+  orders.delivery_date AS deliveryDate,
+  orders.pay_type_id AS payType,
+  orders.total AS total,
+  orders.nit AS nit,
+  orders.bill_name AS billName
+  FROM orders`;
+
+  sanaMedicDB.query(query, function (err, results) {
+    if (err) {
+      next(err)
+    } else {
+      let promises = [];
+      results.forEach(product => {
+        promises.push(getItems(product.orderId));
+      })
+      Promise.all(promises).then(collectionList => {
+        results.forEach((product, index) => {
+          product['items'] = collectionList[index];
+        })
+        res.json({status: "success", message: "orders list found!!!", data: results});
+      })
+    }
+  })
+}
+
+function getItems(orderId) {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT
+    orders_detail.orders_detail_id AS orderDetailId,
+    orders_detail.order_id AS orderId,
+    orders_detail.product_id AS productId,
+    orders_detail.quantity AS quantity,
+    orders_detail.sub_total AS subTotal
+   FROM orders_detail WHERE orders_detail.order_id = '${orderId}'`;
+    sanaMedicDB.query(query, function (err, results) {
+      resolve(results)
+    })
+  })
 }
 
 exports.create = (req, res, next) => {
