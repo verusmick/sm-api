@@ -26,11 +26,11 @@ exports.getAll = (req, res, next) => {
       let promises = [];
       results.forEach(product => {
         promises.push(getItems(product.orderId));
-      })
+      });
       Promise.all(promises).then(collectionList => {
         results.forEach((product, index) => {
           product['items'] = collectionList[index];
-        })
+        });
         res.json({status: "success", message: "orders list found!!!", data: results});
       })
     }
@@ -123,7 +123,27 @@ exports.deleteById = (req, res, next) => {
 }
 
 exports.updateById = (req, res, next) => {
-
+  let body = req.body, userId = req.headers.userid;
+  let deliveryDate= !body.deliveryDate? null:`'${body.deliveryDate}'`
+  let query = `UPDATE orders SET
+  client_cache_id = '${body.clientId}', 
+  user_id = '${userId}',   
+  delivery_date = ${deliveryDate}, 
+  pay_type_id = '${body.payType}', 
+  total = '${body.total}', 
+  nit = '${body.nit}', 
+  bill_name = '${body.billName}'   
+  WHERE orders.order_id = ${body.orderId}`;
+  sanaMedicDB.query(query, (err, results) => {
+    let promises = [];
+    body.items.forEach(item => {
+      promises.push(updateItem(item));
+    })
+    Promise.all(promises).then(() => {
+        res.json({status: "success", message: "Order updated successfully!!!", data: null});
+      }
+    )
+  })
 }
 
 function getItems(orderId) {
@@ -240,3 +260,23 @@ function deleteItems(orderId) {
     })
   })
 }
+
+function updateItem(item) {
+  return new Promise((resolve, reject) => {
+    let query = `UPDATE orders_detail SET
+     order_id = '${item.orderId}',
+     product_id = '${item.productId}', 
+     quantity = '${item.quantity}',
+     sub_total = '${item.subTotal}'
+     WHERE orders_detail.orders_detail_id = ${item.orderDetailId}`;
+    sanaMedicDB.query(query, (err, results) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(results);
+      }
+    })
+  })
+}
+
+
