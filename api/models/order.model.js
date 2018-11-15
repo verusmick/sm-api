@@ -7,7 +7,6 @@ var _ = require('lodash');
 const moment = require('moment');
 
 exports.getAll = (req, res, next) => {
-  // let where = req.query.roleFilter ? ` WHERE roles.role_code = "${req.query.roleFilter}"` : '';
   let query = `SELECT 
   orders.order_id AS orderId, 
   orders.client_cache_id AS clientId, 
@@ -70,11 +69,57 @@ exports.create = (req, res, next) => {
 }
 
 exports.getById = (req, res, next) => {
+  let orderId = req.params.orderId;
+  let query = `SELECT 
+  orders.order_id AS orderId, 
+  orders.client_cache_id AS clientId, 
+  orders.user_id AS userId,
+  orders.order_date AS orderDate,
+  orders.delivery_date AS deliveryDate,
+  orders.pay_type_id AS payType,
+  orders.total AS total,
+  orders.nit AS nit,
+  orders.bill_name AS billName
+  FROM orders WHERE orders.order_id = '${orderId}'`;
+  sanaMedicDB.query(query, function (err, results) {
+    if (err) {
+      next(err)
+    } else {
+      let promises = [];
+      results.forEach(product => {
+        promises.push(getItems(product.orderId));
+      })
+      Promise.all(promises).then(collectionList => {
+        results.forEach((product, index) => {
+          product['items'] = collectionList[index];
+        })
+        if (results.length > 0) {
+          res.json({status: "success", message: "Order Found!!", data: results});
+        } else {
+          res.json({status: "error", message: "Order not Found!!", data: []});
+        }
 
+      })
+    }
+  })
 }
 
 exports.deleteById = (req, res, next) => {
-
+  let orderId = req.params.orderId;
+  deleteItems(orderId).then(_ => {
+    let query = `DELETE FROM orders WHERE order_id = "${req.params.orderId}"`;
+    sanaMedicDB.query(query, function (err, results) {
+      if (err)
+        next(err);
+      else {
+        res.json({
+          status: "success",
+          message: "Order deleted successfully!!!",
+          data: null
+        });
+      }
+    })
+  })
 }
 
 exports.updateById = (req, res, next) => {
@@ -181,4 +226,17 @@ function getCacheClient(clientId) {
       }
     })
   });
+}
+
+function deleteItems(orderId) {
+  return new Promise((resolve, reject) => {
+    let query = `DELETE FROM orders_detail WHERE order_id = '${orderId}'`;
+    sanaMedicDB.query(query, function (err, results) {
+      if (err)
+        reject(err);
+      else {
+        resolve(results)
+      }
+    })
+  })
 }
