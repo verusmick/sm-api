@@ -26,14 +26,20 @@ exports.getAll = (req, res, next) => {
       next(err)
     } else {
       let promises = [];
+      let clientPromises = [];
       results.forEach(product => {
         promises.push(getItems(product.orderId));
+        clientPromises.push(getClientById(product.clientId))
       });
       Promise.all(promises).then(collectionList => {
-        results.forEach((product, index) => {
-          product['items'] = collectionList[index];
-        });
-        res.json({status: "success", message: "orders list found!!!", data: results});
+        Promise.all(clientPromises).then(clientsList => {
+          results.forEach((product, index) => {
+            product['items'] = collectionList[index];
+            product['client'] = clientsList[index];
+            delete product['clientId'];
+          });
+          res.json({status: "success", message: "orders list found!!!", data: results});
+        })
       })
     }
   })
@@ -281,4 +287,15 @@ function updateItem(item) {
   })
 }
 
-
+function getClientById(clientId) {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT * FROM clientes WHERE id_cliente = '${clientId}'`;
+    sicivDB.query(query, function (err, results) {
+      if (err)
+        reject(err);
+      else {
+        resolve(results)
+      }
+    })
+  })
+}
