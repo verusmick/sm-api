@@ -7,6 +7,8 @@ var _ = require('lodash');
 const moment = require('moment');
 
 exports.getAll = (req, res, next) => {
+  let userId = req.headers.userid;
+  let userWhere = req.query.userFilter ? ` WHERE orders.user_id = '${req.query.userFilter}'` : '';
   let query = `SELECT 
   orders.order_id AS orderId, 
   orders.client_cache_id AS clientId, 
@@ -17,7 +19,7 @@ exports.getAll = (req, res, next) => {
   orders.total AS total,
   orders.nit AS nit,
   orders.bill_name AS billName
-  FROM orders`;
+  FROM orders` + userWhere;
 
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
