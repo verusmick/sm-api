@@ -57,11 +57,12 @@ exports.create = (req, res, next) => {
     pay_type_id, 
     total, 
     nit, 
-    bill_name) VALUES (
+    bill_name, 
+    status) VALUES (
     '${body.clientId}',
      '${userId}', 
     '${moment().format('YYYY-MM-DD HH:mm:ss')}',NULL, 
-    '${body.payType}', '${body.total}', '${body.nit}','${body.billName}')`;
+    '${body.payType}', '${body.total}', '${body.nit}','${body.billName}','${body.status}')`;
     sanaMedicDB.query(query, (err, results) => {
       if (err) throw next(err);
       let promises = [];
