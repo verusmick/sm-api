@@ -38,7 +38,7 @@ exports.getAll = (req, res, next) => {
             product['client'] = clientsList[index].length > 0 ? clientsList[index][0] : {};
             delete product['clientId'];
           });
-          res.json({status: "success", message: "orders list found!!!", data: results});
+          res.json({status: "success", message: "orders list found!!!", data: _.orderBy(results, ['orderDate'], ['desc'])});
         })
       })
     }
