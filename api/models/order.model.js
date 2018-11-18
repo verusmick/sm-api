@@ -57,8 +57,7 @@ exports.create = (req, res, next) => {
     pay_type_id, 
     total, 
     nit, 
-    bill_name, 
-    status) VALUES (
+    bill_name) VALUES (
     '${body.clientId}',
      '${userId}', 
     '${moment().format('YYYY-MM-DD HH:mm:ss')}',NULL, 
