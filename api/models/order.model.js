@@ -14,7 +14,7 @@ exports.getAll = (req, res, next) => {
   orders.client_cache_id AS clientId, 
   orders.user_id AS userId,
   orders.order_date AS orderDate,
-  orders.delivery_date AS deliveryDate,
+  orders.registered_date AS registeredDate,
   orders.pay_type_id AS payType,
   orders.total AS total,
   orders.nit AS nit,
@@ -53,15 +53,15 @@ exports.create = (req, res, next) => {
     client_cache_id, 
     user_id, 
     order_date, 
-    delivery_date, 
+    registered_date, 
     pay_type_id, 
     total, 
     nit, 
     bill_name) VALUES (
     '${body.clientId}',
-     '${userId}', 
+    '${userId}', 
     '${moment().format('YYYY-MM-DD HH:mm:ss')}',NULL, 
-    '${body.payType}', '${body.total}', '${body.nit}','${body.billName}','${body.status}')`;
+    '${body.payType}', '${body.total}', '${body.nit}','${body.billName}')`;
     sanaMedicDB.query(query, (err, results) => {
       if (err) throw next(err);
       let promises = [];
@@ -83,7 +83,7 @@ exports.getById = (req, res, next) => {
   orders.client_cache_id AS clientId, 
   orders.user_id AS userId,
   orders.order_date AS orderDate,
-  orders.delivery_date AS deliveryDate,
+  orders.registered_date AS registeredDate,
   orders.pay_type_id AS payType,
   orders.total AS total,
   orders.nit AS nit,
@@ -132,11 +132,11 @@ exports.deleteById = (req, res, next) => {
 
 exports.updateById = (req, res, next) => {
   let body = req.body, userId = req.headers.userid;
-  let deliveryDate= !body.deliveryDate? null:`'${body.deliveryDate}'`
+  let registeredDate= !body.registeredDate? null:`'${body.registeredDate}'`
   let query = `UPDATE orders SET
   client_cache_id = '${body.clientId}', 
   user_id = '${userId}',   
-  delivery_date = ${deliveryDate}, 
+  registered_date = ${registeredDate}, 
   pay_type_id = '${body.payType}', 
   total = '${body.total}', 
   nit = '${body.nit}', 
