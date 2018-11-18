@@ -35,7 +35,7 @@ exports.getAll = (req, res, next) => {
         Promise.all(clientPromises).then(clientsList => {
           results.forEach((product, index) => {
             product['items'] = collectionList[index];
-            product['client'] = clientsList[index];
+            product['client'] = clientsList[index].length > 0 ? clientsList[index][0] : {};
             delete product['clientId'];
           });
           res.json({status: "success", message: "orders list found!!!", data: results});
