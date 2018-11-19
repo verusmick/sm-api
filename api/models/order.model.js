@@ -146,8 +146,9 @@ exports.updateById = (req, res, next) => {
   console.log(query);
   sanaMedicDB.query(query, (err, results) => {
     let promises = [];
+    promises.push(deleteItems(body.orderId));
     body.items.forEach(item => {
-      promises.push(updateItem(item));
+      promises.push(addItem(item, body.orderId));
     })
     Promise.all(promises).then(() => {
         res.json({status: "success", message: "Order updated successfully!!!", data: null});
