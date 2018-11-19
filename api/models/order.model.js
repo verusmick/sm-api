@@ -38,7 +38,7 @@ exports.getAll = (req, res, next) => {
             product['client'] = clientsList[index].length > 0 ? clientsList[index][0] : {};
             delete product['clientId'];
           });
-          res.json({status: "success", message: "orders list found!!!", data: _.orderBy(results, ['orderDate'], ['desc'])});
+          res.json(_.orderBy(results, ['orderDate'], ['desc']));
         })
       })
     }
@@ -142,6 +142,8 @@ exports.updateById = (req, res, next) => {
   nit = '${body.nit}', 
   bill_name = '${body.billName}'   
   WHERE orders.order_id = ${body.orderId}`;
+  console.log('---->');
+  console.log(query);
   sanaMedicDB.query(query, (err, results) => {
     let promises = [];
     body.items.forEach(item => {
@@ -161,10 +163,53 @@ function getItems(orderId) {
     orders_detail.order_id AS orderId,
     orders_detail.product_id AS productId,
     orders_detail.quantity AS quantity,
-    orders_detail.sub_total AS subTotal
+    orders_detail.sub_total AS subTotal,
+    orders_detail.price AS price
    FROM orders_detail WHERE orders_detail.order_id = '${orderId}'`;
     sanaMedicDB.query(query, function (err, results) {
-      resolve(results)
+      let productsPromises = [];
+      results.forEach(product => {
+        productsPromises.push(getProductById(product.productId));
+      })
+
+      Promise.all(productsPromises).then((prodList) => {
+        results.forEach((result, index) => {
+          result['product'] = prodList[index];
+        })
+        resolve(results);
+      })
+    })
+  })
+}
+
+function getProductById(productId) {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT
+  nota_de_ingresos_productos.no_de_lote,
+  nota_de_ingresos_productos.registro_sanitario,
+  nota_de_ingresos_productos.fecha_de_vencimiento,
+  nota_de_ingresos_productos.estado,
+  nota_de_ingresos_productos.cantidad_a_la_venta,
+  nota_de_ingresos_productos.precio_instituciones,
+  nota_de_ingresos_productos.precio_distribuidora,
+  nota_de_ingresos_productos.precio_farmacia,
+  nota_de_ingresos_productos.id_producto_venta,
+  lab_productos.producto,
+  lab_productos.concentrado,
+  lab_productos.presentacion,
+  lab_productos.clasificacion_terapeutica,
+  lab_productos.id_producto_laboratorio 
+  FROM
+  nota_de_ingresos_productos
+  INNER JOIN 
+  lab_productos ON nota_de_ingresos_productos.id_producto_laboratorio = lab_productos.id_producto_laboratorio
+   WHERE nota_de_ingresos_productos.id_producto_venta = '${productId}'`;
+    sicivDB.query(query, function (err, results) {
+      if (err){
+        reject(err);
+      } else{
+        resolve(results[0]);
+      }
     })
   })
 }
@@ -175,8 +220,9 @@ function addItem(item, orderId) {
     order_id, 
     product_id, 
     quantity, 
+    price, 
     sub_total) 
-    VALUES ('${orderId}', '${item.productId}', '${item.quantity}', '${item.subTotal}')`;
+    VALUES ('${orderId}', '${item.productId}', '${item.quantity}', '${item.price}', '${item.subTotal}')`;
     sanaMedicDB.query(query, (err, results) => {
       if (err) {
         reject(err)
@@ -275,6 +321,7 @@ function updateItem(item) {
      order_id = '${item.orderId}',
      product_id = '${item.productId}', 
      quantity = '${item.quantity}',
+     price = '${item.price}',
      sub_total = '${item.subTotal}'
      WHERE orders_detail.orders_detail_id = ${item.orderDetailId}`;
     sanaMedicDB.query(query, (err, results) => {
