@@ -36,7 +36,6 @@ exports.getAll = (req, res, next) => {
           results.forEach((product, index) => {
             product['items'] = collectionList[index];
             product['client'] = clientsList[index].length > 0 ? clientsList[index][0] : {};
-            delete product['clientId'];
           });
           res.json(_.orderBy(results, ['orderDate'], ['desc']));
         })
@@ -132,18 +131,16 @@ exports.deleteById = (req, res, next) => {
 
 exports.updateById = (req, res, next) => {
   let body = req.body, userId = req.headers.userid;
-  let registeredDate= !body.registeredDate? null:`'${body.registeredDate}'`
+  let registeredDate= !body.registeredDate? null:`'${moment().format('YYYY-MM-DD HH:mm:ss')}'`
   let query = `UPDATE orders SET
   client_cache_id = '${body.clientId}', 
-  user_id = '${userId}',   
+  
   registered_date = ${registeredDate}, 
   pay_type_id = '${body.payType}', 
   total = '${body.total}', 
   nit = '${body.nit}', 
   bill_name = '${body.billName}'   
   WHERE orders.order_id = ${body.orderId}`;
-  console.log('---->');
-  console.log(query);
   sanaMedicDB.query(query, (err, results) => {
     let promises = [];
     promises.push(deleteItems(body.orderId));
