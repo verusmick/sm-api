@@ -13,6 +13,7 @@ var inventoryRouter = require('./api/routes/inventory');
 var gpsTrackingRouter = require('./api/routes/gpsTracking');
 var history = require('./api/routes/history');
 var order = require('./api/routes/order');
+var report = require('./api/routes/reports');
 var jwt = require('jsonwebtoken');
 var cors = require('cors')
 
@@ -58,6 +59,7 @@ app.use('/inventory',validateUser, inventoryRouter);
 app.use('/gpsTracking', gpsTrackingRouter);
 app.use('/history', validateUser, history);
 app.use('/orders', validateUser, order);
+app.use('/reports', validateUser, report);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
