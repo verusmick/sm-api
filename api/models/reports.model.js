@@ -24,3 +24,17 @@ exports.getStatusGpsPerSeller = (req, res, next) => {
     }
   })
 }
+
+exports.bestSellers = (req, res, next) => {
+  let since = req.query.since;
+  let until = req.query.until;
+  let query = `SELECT * FROM 
+  orders WHERE registered_date BETWEEN '${since} 00:00:01' AND '${until} 23:59:59'`;
+  sanaMedicDB.query(query, function (err, results) {
+    if (err) {
+      next(err)
+    } else {
+      res.json({status: "success", message: "Report list found!!!", data: results});
+    }
+  })
+}
