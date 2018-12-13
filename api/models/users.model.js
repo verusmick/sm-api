@@ -136,11 +136,14 @@ exports.getById = (req, res, next) => {
         data: {
           id: user.id,
           firstName: user.first_name,
+          secondName: user.second_name,
           firstSurname: user.first_surname,
           secondSurname: user.second_surname,
           cellphone: user.cellphone,
           password: user.password,
-          ci: user.ci
+          ci: user.ci,
+          roleId:user.role_id,
+          bornedIn:user.borned_in
         }
       })
     } else {
@@ -149,12 +152,22 @@ exports.getById = (req, res, next) => {
   })
 }
 
-//todo: implement later
 exports.updateById = (req, res, next) => {
-  let query = `SELECT * FROM users WHERE ci LIKE  "${req.body.ci}__"`;
+  let user = req.body;
+
+  let pws = user.password? `, password = '${bcrypt.hashSync(user.password, 10)}'`:'';
+  let query = `UPDATE users SET
+    first_name = '${user.firstName}',
+    second_name = '${user.secondName}',
+    first_surname = '${user.firstSurname}',    
+    borned_in = '${user.bornedIn}',
+    second_surname = '${user.secondSurname}',
+    cellphone = '${user.cellphone}',
+    role_id= '${user.roleId}'${pws}    
+    WHERE users.ci = '${user.ci}'`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) throw err
-    return res.json(results)
+    res.json({status: "success", message: "User updated successfully!!!", data: null});
   })
 }
 

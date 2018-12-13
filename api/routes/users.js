@@ -8,7 +8,7 @@ router.post('/authenticate', userHandlers.authenticate)
 router.get('/', validateUser, userHandlers.getAll)
 router.post('/', validateUser, userHandlers.create)
 router.get('/:userId', validateUser, userHandlers.getById)
-// router.put('/:userId', validateUser, userHandlers.updateById) //todo: implement later
+router.put('/', validateUser, userHandlers.updateById)
 router.delete('/:userId', validateUser, userHandlers.deleteById)
 
 // Token interceptor
