@@ -5,7 +5,7 @@ var jwt = require('jsonwebtoken')
 
 router.post('/authenticate', userHandlers.authenticate)
 
-router.get('/`', validateUser, userHandlers.getAll)
+router.get('/', validateUser, userHandlers.getAll)
 router.post('/', validateUser, userHandlers.create)
 router.get('/:userId', validateUser, userHandlers.getById)
 router.put('/', validateUser, userHandlers.updateById)
