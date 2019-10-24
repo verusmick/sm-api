@@ -73,7 +73,6 @@ function getResourcesPerRole(roleId) {
 }
 
 exports.getAll = (req, res, next) => {
-  console.log('llega aca')
   let where = req.query.roleFilter ? ` WHERE roles.role_code = "${req.query.roleFilter}"` : '';
   let query = 'SELECT users.first_name AS firstName , ' +
     'users.first_surname AS firstSurname,' +
