@@ -5,6 +5,7 @@ const sanaMedicDB = require('../Database/sanaMedicDB')
 const sicivDB = require('../Database/sicivDB')
 var _ = require('lodash');
 const moment = require('moment');
+const logs = require('../logs/logs.service');
 
 exports.getAll = (req, res, next) => {
   let userId = req.headers.userid;
@@ -23,6 +24,7 @@ exports.getAll = (req, res, next) => {
 
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
+      logs.write(req.headers.username, req.headers.ci, 'Error en el envio de la lista de Proformas.');
       next(err)
     } else {
       let promises = [];
@@ -37,6 +39,7 @@ exports.getAll = (req, res, next) => {
             product['items'] = collectionList[index];
             product['client'] = clientsList[index].length > 0 ? clientsList[index][0] : {};
           });
+          logs.write(req.headers.username, req.headers.ci, 'Envio de la lista de Proformas.');
           res.json(_.orderBy(results, ['orderDate'], ['desc']));
         })
       })
@@ -62,12 +65,16 @@ exports.create = (req, res, next) => {
     '${moment().format('YYYY-MM-DD HH:mm:ss')}',NULL, 
     '${body.payType}', '${body.total}', '${body.nit}','${body.billName}')`;
     sanaMedicDB.query(query, (err, results) => {
-      if (err) throw next(err);
+      if (err) {
+        logs.write(req.headers.username, req.headers.ci, 'Error en la creacion de Proformas.');
+        throw next(err);
+      }
       let promises = [];
       body.items.forEach(item => {
         promises.push(addItem(item, results.insertId));
       })
       Promise.all(promises).then(() => {
+        logs.write(req.headers.username, req.headers.ci, 'Creacion de Proforma.');
           res.json({status: "success", message: "Order added successfully!!!", data: null});
         }
       )
@@ -90,7 +97,8 @@ exports.getById = (req, res, next) => {
   FROM orders WHERE orders.order_id = '${orderId}'`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
-      next(err)
+      logs.write(req.headers.username, req.headers.ci, `Error en el envio de la proforma con ID: ${orderId}`);
+      next(err);
     } else {
       let promises = [];
       results.forEach(product => {
@@ -101,11 +109,12 @@ exports.getById = (req, res, next) => {
           product['items'] = collectionList[index];
         })
         if (results.length > 0) {
+          logs.write(req.headers.username, req.headers.ci, `Envio de la proforma con ID: ${orderId}.`);
           res.json({status: "success", message: "Order Found!!", data: results});
         } else {
+          logs.write(req.headers.username, req.headers.ci, `Error en el envio de la proforma con ID: ${orderId}.`);
           res.json({status: "error", message: "Order not Found!!", data: []});
         }
-
       })
     }
   })
@@ -116,9 +125,11 @@ exports.deleteById = (req, res, next) => {
   deleteItems(orderId).then(_ => {
     let query = `DELETE FROM orders WHERE order_id = "${req.params.orderId}"`;
     sanaMedicDB.query(query, function (err, results) {
-      if (err)
+      if (err){
+        logs.write(req.headers.username, req.headers.ci, `Error en la eliminacion de la proforma con ID: ${req.params.orderId}.`);
         next(err);
-      else {
+      } else {
+        logs.write(req.headers.username, req.headers.ci, `Eliminacion de la proforma con ID: ${req.params.orderId}.`);
         res.json({
           status: "success",
           message: "Order deleted successfully!!!",
@@ -148,6 +159,7 @@ exports.updateById = (req, res, next) => {
       promises.push(addItem(item, body.orderId));
     })
     Promise.all(promises).then(() => {
+        logs.write(req.headers.username, req.headers.ci, `Modificacion de la proforma con ID: ${body.orderId}.`);
         res.json({status: "success", message: "Order updated successfully!!!", data: null});
       }
     )

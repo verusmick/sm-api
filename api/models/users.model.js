@@ -1,15 +1,17 @@
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const sanaMedicDB = require('../Database/sanaMedicDB')
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const sanaMedicDB = require('../Database/sanaMedicDB');
+const logs = require('../logs/logs.service');
 var _ = require('lodash');
 
 exports.authenticate = (req, res, next) => {
   // let query = `SELECT * FROM users WHERE ci LIKE  "${req.body.ci}__"`;
-  let query = `SELECT * FROM users WHERE ci = '${req.body.ci}'`
+  let query = `SELECT * FROM users WHERE ci = '${req.body.ci}'`;
   sanaMedicDB.query(query, (err, results) => {
     if (err) {
       next(err);
     } else if (results.length === 0) {
+      logs.write(null, null, 'Usuario con C.I. ' + req.body.ci + ' No tiene accesso.');
       res.json({status: "error", message: "", data: null});
     } else {
       let userInfo = results[0];
@@ -32,9 +34,11 @@ exports.authenticate = (req, res, next) => {
             role: role,
             resources: resources
           };
+          logs.write('Usuario ' + userInfo.first_name + ' ' + userInfo.first_surname+' logueado  correctamente.');
           res.json({status: "success", message: "user found!!!", data: {user: userInfoParsed, token: token}});
         })
       } else {
+        logs.write(null,null,'Usuario ' + userInfo.first_name + ' ' + userInfo.first_surname+'No tiene accesso.');
         res.json({status: "error", message: "Invalid email/password!!!", data: null});
       }
     }
@@ -87,12 +91,14 @@ exports.getAll = (req, res, next) => {
     'INNER JOIN roles ON users.role_id = roles.role_id' + where;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
+      logs.write(req.headers.username, req.headers.ci, 'Error en el envio de la lista de Usuarios.');
       next(err)
     } else {
+      logs.write(req.headers.username, req.headers.ci, 'Envio de la lista de Usuarios completada.');
       res.json({status: "success", message: "Users list found!!!", data: {users: results}});
     }
   })
-}
+};
 
 exports.create = (req, res, next) => {
   let user = req.body;
@@ -118,7 +124,11 @@ exports.create = (req, res, next) => {
   '${user.roleId}',
   '${bcrypt.hashSync(user.password, 10)}')`;
   sanaMedicDB.query(query, (err, results) => {
-    if (err) throw next(err);
+    if (err) {
+      logs.write(req.headers.username, req.headers.ci, 'Error en la creacion de nuevo Usuario.');
+      throw next(err);
+    }
+    logs.write(req.headers.username, req.headers.ci, 'Creacion de nuevo Usuario completada.');
     res.json({status: "success", message: "User added successfully!!!", data: null});
   })
 };
@@ -129,6 +139,7 @@ exports.getById = (req, res, next) => {
     if (err) {
       next(err)
     } else if (response.length !== 0) {
+      logs.write(req.headers.username, req.headers.ci, 'Envio de Usuario buscado por CI Completado.');
       let user = response[0]
       res.json({
         status: "success",
@@ -147,6 +158,7 @@ exports.getById = (req, res, next) => {
         }
       })
     } else {
+      logs.write(req.headers.username, req.headers.ci, 'Error en el envio de Usuario buscado por CI Completado.');
       res.json({status: "error", message: "User not found!!!", data: null});
     }
   })
@@ -166,7 +178,11 @@ exports.updateById = (req, res, next) => {
     role_id= '${user.roleId}'${pws}    
     WHERE users.ci = '${user.ci}'`;
   sanaMedicDB.query(query, function (err, results) {
-    if (err) throw err
+    if (err) {
+      logs.write(req.headers.username, req.headers.ci, `Error en la modificacion del usuario con C.I.: ${user.ci}.`);
+      throw err
+    }
+    logs.write(req.headers.username, req.headers.ci, `Modificacion del usuario con C.I.: ${user.ci}.`);
     res.json({status: "success", message: "User updated successfully!!!", data: null});
   })
 }
@@ -174,9 +190,11 @@ exports.updateById = (req, res, next) => {
 exports.deleteById = (req, res, next) => {
   let query = `DELETE FROM users WHERE ci = "${req.params.userId}"`;
   sanaMedicDB.query(query, function (err, results) {
-    if (err)
+    if (err) {
       next(err);
-    else {
+      logs.write(req.headers.username, req.headers.ci, `Error en la eliminacion del usuario con C.I.: ${req.params.userId}.`);
+    } else {
+      logs.write(req.headers.username, req.headers.ci, `Eliminacion del usuario con C.I.: ${req.params.userId}.`);
       res.json({
         status: "success",
         message: "User deleted successfully!!!",

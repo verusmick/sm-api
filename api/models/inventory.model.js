@@ -1,4 +1,5 @@
 const sicivDB = require('../Database/sicivDB')
+const logs = require('../logs/logs.service')
 
 exports.getInventory = (req, res) => {
   let like = req.query.like;
@@ -25,7 +26,11 @@ exports.getInventory = (req, res) => {
   WHERE
   nota_de_ingresos_productos.estado = 'EN INVENTARIO' AND nota_de_ingresos_productos.cantidad_a_la_venta > 0` + likeQuery;
   sicivDB.query(query, function (err, results) {
-    if (err) throw err
+    if (err) {
+      logs.write(req.headers.username, req.headers.ci, 'Error en el envio de la lista de Inventario.');
+      throw err
+    }
+    logs.write(req.headers.username, req.headers.ci, 'Envio de la lista de Inventario.');
     return res.json(results)
   })
 }

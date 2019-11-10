@@ -1,6 +1,7 @@
-const sanaMedicDB = require('../Database/sanaMedicDB')
-const sicivDB = require('../Database/sicivDB')
+const sanaMedicDB = require('../Database/sanaMedicDB');
+const sicivDB = require('../Database/sicivDB');
 var _ = require('lodash');
+const logs = require('../logs/logs.service');
 exports.getStatusGpsPerSeller = (req, res, next) => {
   let since = req.query.since;
   let until = req.query.until;
@@ -19,8 +20,10 @@ exports.getStatusGpsPerSeller = (req, res, next) => {
    AND TIMESTAMP BETWEEN '${since} 00:00:01' AND '${until} 23:59:59' ORDER BY track_detail.timestamp ASC`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
+      logs.write(req.headers.username, req.headers.ci, 'Error en la generacion de Reporte: GPS x Visitador.');
       next(err)
     } else {
+      logs.write(req.headers.username, req.headers.ci, 'Generacion de Reporte: GPS x Visitador.');
       res.json({status: "success", message: "Report list found!!!", data: results});
     }
   })
@@ -33,8 +36,10 @@ exports.bestSellers = (req, res, next) => {
   orders WHERE registered_date BETWEEN '${since} 00:00:01' AND '${until} 23:59:59'`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
+      logs.write(req.headers.username, req.headers.ci, 'Error en la generacion de Reporte: Mejores Visitadores.');
       next(err)
     } else {
+      logs.write(req.headers.username, req.headers.ci, 'Generacion de Reporte: Mejores Visitadores.');
       res.json({status: "success", message: "Report list found!!!", data: results});
     }
   })
@@ -56,7 +61,8 @@ exports.getOrders = (req, res, next) => {
   FROM orders WHERE order_date BETWEEN '${since} 00:00:01' AND '${until} 23:59:59' ORDER BY orders.order_date ASC`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
-      next(err)
+      logs.write(req.headers.username, req.headers.ci, 'Error en la generacion de Reporte: Proformas.');
+      next(err);
     } else {
       let clientPromises = [];
       results.forEach(product => {
@@ -66,6 +72,7 @@ exports.getOrders = (req, res, next) => {
         results.forEach((product, index) => {
           product['client'] = clientsList[index].length > 0 ? clientsList[index][0] : {};
         });
+        logs.write(req.headers.username, req.headers.ci, 'Generacion de Reporte: Proformas.');
         res.json({status: "success", message: "Report list found!!!", data: results});
       })
     }

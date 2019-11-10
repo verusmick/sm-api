@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
-const sanaMedicDB = require('../Database/sanaMedicDB')
+const sanaMedicDB = require('../Database/sanaMedicDB');
 const moment = require('moment');
+const logs = require('../logs/logs.service');
 
 exports.postSellersTrack = function (req, res, next) {
   let coordinate ={
@@ -48,7 +49,11 @@ exports.setTrackStatus = (req, res, next) => {
   let query = `INSERT INTO track_detail (status_track_id, user_id, timestamp) 
   VALUES (${statusTrackId},'${trackStatus.userId}', '${moment().format('YYYY-MM-DD HH:mm:ss')}')`;
   sanaMedicDB.query(query, function (err, results) {
-    if (err) throw next(err);
+    if (err){
+      logs.write(req.headers.username, req.headers.ci, `Error al establecer el estado del GPS a: ${statusTrackId}`);
+      throw next(err);
+    }
+    logs.write(req.headers.username, req.headers.ci, `Establecer el estado del GPS a: ${statusTrackId}`);
     return res.json({
       status: "success",
       message: "TrackStatus added successfully!!!",
@@ -61,7 +66,10 @@ exports.gpsStatus = (req, res, next) => {
   let userId = req.params.userId;
   let query = `SELECT * FROM track_detail WHERE user_id = '${userId}' ORDER BY TIMESTAMP DESC LIMIT 1`;
   sanaMedicDB.query(query, function (err, results) {
-    if (err) throw next(err);
+    if (err){
+      logs.write(req.headers.username, req.headers.ci, `Error en obtener la lista de estados del GPS por usuario.`);
+      throw next(err);
+    }
     if (results.length === 0) {
       return res.json({})
     }
@@ -70,6 +78,7 @@ exports.gpsStatus = (req, res, next) => {
       userId: results[0].user_id,
       timestamp: results[0].timestamp
     };
+    logs.write(req.headers.username, req.headers.ci, `Lista de estados del GPS por usuario.`);
     return res.json(parseObj)
   })
 }
