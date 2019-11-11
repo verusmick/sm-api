@@ -15,7 +15,10 @@ exports.write = function (user, ci, msg) {
 }
 
 exports.read = function () {
-  fs.readFile("logs.txt", function (err, content) {
-    console.log(content.toString());
-  });
+  console.log('tete');
+  return new Promise((resolve, reject) => {
+    fs.readFile("logs.txt", function (err, content) {
+      resolve( content.toString())
+    });
+  })
 }

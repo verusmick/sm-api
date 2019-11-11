@@ -79,6 +79,15 @@ exports.getOrders = (req, res, next) => {
   });
 }
 
+exports.getLogs = (req, res, next) => {
+  logs.write(req.headers.username, req.headers.ci, 'Generacion de Reporte: Logs.');
+  logs.read().then(function (response) {
+    let logsCache = response.substring(0, response.length - 1);
+    logsCache = `[${logsCache}]`;
+    res.json({status: "success", message: "Report list found!!!", data: JSON.parse(logsCache)});
+  })
+};
+
 function getClientById(clientId) {
   return new Promise((resolve, reject) => {
     let query = `SELECT * FROM clientes WHERE id_cliente = '${clientId}'`;

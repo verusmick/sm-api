@@ -6,5 +6,6 @@ var reportsHandlers = require('../models/reports.model.js');
 router.get('/getStatusGpsPerSeller', reportsHandlers.getStatusGpsPerSeller);
 router.get('/bestSellers', reportsHandlers.bestSellers);
 router.get('/orders', reportsHandlers.getOrders);
+router.get('/logs', reportsHandlers.getLogs);
 
 module.exports = router;

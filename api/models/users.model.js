@@ -34,7 +34,8 @@ exports.authenticate = (req, res, next) => {
             role: role,
             resources: resources
           };
-          logs.write('Usuario ' + userInfo.first_name + ' ' + userInfo.first_surname+' logueado  correctamente.');
+
+          logs.write(userInfo.first_name + ' ' + userInfo.first_surname, userInfo.ci, 'Usuario logueado  correctamente.');
           res.json({status: "success", message: "user found!!!", data: {user: userInfoParsed, token: token}});
         })
       } else {
