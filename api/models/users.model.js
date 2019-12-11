@@ -189,18 +189,74 @@ exports.updateById = (req, res, next) => {
 }
 
 exports.deleteById = (req, res, next) => {
-  let query = `DELETE FROM users WHERE ci = "${req.params.userId}"`;
+  let query = `DELETE FROM coordinates WHERE user_id = ${req.params.userId}`;
   sanaMedicDB.query(query, function (err, results) {
     if (err) {
       next(err);
-      logs.write(req.headers.username, req.headers.ci, `Error en la eliminacion del usuario con C.I.: ${req.params.userId}.`);
-    } else {
-      logs.write(req.headers.username, req.headers.ci, `Eliminacion del usuario con C.I.: ${req.params.userId}.`);
-      res.json({
-        status: "success",
-        message: "User deleted successfully!!!",
-        data: null
-      });
     }
+    deleteOrdersByUserId(req.params.userId).then(_=>{
+      let query = `DELETE FROM track_detail WHERE user_id=${req.params.userId}`
+      sanaMedicDB.query(query, function (err, results) {
+        if(err){
+          next(err);
+        }else{
+          let query = `DELETE FROM users WHERE ci = "${req.params.userId}"`;
+          sanaMedicDB.query(query, function (err, results) {
+            if (err) {
+              next(err);
+              logs.write(req.headers.username, req.headers.ci, `Error en la eliminacion del usuario con C.I.: ${req.params.userId}.`);
+            } else {
+              logs.write(req.headers.username, req.headers.ci, `Eliminacion del usuario con C.I.: ${req.params.userId}.`);
+              res.json({
+                status: "success",
+                message: "User deleted successfully!!!",
+                data: null
+              });
+            }
+          })
+        }
+      })
+    });
+  });
+}
+
+
+function deleteOrdersByUserId(userId) {
+  return new Promise((resolve, reject) => {
+    let query = `SELECT * FROM orders WHERE user_id= ${userId}`;
+    sanaMedicDB.query(query, function (err, results) {
+      if (err) {
+        reject(err);
+      } else {
+        let orders = results;
+        let promises = [];
+        orders.forEach((order, index) => {
+          promises.push(deleteOrderDetail(order.order_id));
+        });
+        Promise.all(promises).then(_ => {
+          let query = `DELETE FROM orders WHERE user_id = ${userId}`
+          sanaMedicDB.query(query, function (err, results) {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(results)
+            }
+          })
+        })
+      }
+    })
+  })
+}
+
+function deleteOrderDetail(orderId) {
+  return new Promise((resolve, reject) => {
+    let query = `DELETE FROM orders_detail WHERE order_id = '${orderId}'`;
+    sanaMedicDB.query(query, function (err, results) {
+      if (err)
+        reject(err);
+      else {
+        resolve(results)
+      }
+    })
   })
 }
