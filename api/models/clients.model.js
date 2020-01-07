@@ -2,7 +2,6 @@ const sicivDB = require('../Database/sicivDB')
 const logs = require('../logs/logs.service')
 
 exports.getClients = (req, res) => {
-  console.log('Aca === >');
   let like = req.query.like;
   let likeQuery = like ? ` razon_social LIKE '%${like}%'` : '';
   let debt = req.query.debt ? likeQuery ? ` AND deuda_actual ${req.query.debt}` : ` deuda_actual ${req.query.debt}`: '';
